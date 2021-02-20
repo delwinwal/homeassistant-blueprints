@@ -59,7 +59,8 @@ action:
           data:
             transition: 0.25
             brightness_step_pct: 10
-        - delay: 1
+        - delay:
+            milliseconds: 500
   - conditions:
     - "{{ event == 2001 }}"
     sequence:
@@ -71,4 +72,5 @@ action:
           data:
             transition: 0.25
             brightness_step_pct: -10
-        - delay: 1
+        - delay:
+            milliseconds: 500
