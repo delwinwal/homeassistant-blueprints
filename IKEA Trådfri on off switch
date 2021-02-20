@@ -54,9 +54,7 @@ action:
     - "{{ event == 1001 }}"
     sequence:
       repeat:
-        while:
-        - condition: template
-          value_template: "{{ repeat.index < 10 }}"
+        count: 10
         sequence:
         - service: light.turn_on
           target: !input 'light'
@@ -68,9 +66,7 @@ action:
     - "{{ event == 2001 }}"
     sequence:
       repeat:
-        while:
-        - condition: template
-          value_template: "{{ repeat.index < 10 }}"
+        count: 10
         sequence:
         - service: light.turn_on
           target: !input 'light'
@@ -78,13 +74,3 @@ action:
             transition: 1
             brightness_step_pct: -10
         - delay: 1
-  - conditions:
-    - "{{ event == 1003 }}"
-    sequence:
-    - service: light.turn_on
-      target: !input 'light'
-  - conditions:
-    - "{{ event == 2003 }}"
-    sequence:
-    - service: light.turn_on
-      target: !input 'light'
