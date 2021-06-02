@@ -53,15 +53,43 @@ action:
   - conditions:
     - "{{ event == 1002 }}"
     sequence:
-    - service: light.toggle
-      target: !input 'light_primary'
-      data:
-        transition: 0.25
+    - choose:
+      - conditions:
+        - condition: state
+          target: !input 'light_primary'
+          state: 'on'
+        sequence:
+        - service: light.turn_off
+          target: !input 'light_primary'
+        - service: light.turn_on
+          target: !input 'light_secondary'
+      default:
+      - service: light.turn_on
+        target: !input 'light_primary'
+      - service: light.turn_off
+        target: !input 'light_secondary'
+
   - conditions:
     - "{{ event == 2002 }}"
     sequence:
-    - service: light.toggle
-      target: !input 'light_secondary'
+    - choose:
+      - condition: or
+        conditions:
+        - condition: state
+          target: !input 'light_primary'
+          state: 'on'
+        - condition: state
+          target: !input 'light_secondary'
+          state: 'on'
+        sequence:
+        - service: light.turn_off
+          target: !input 'light_primary'
+        - service: light.turn_off
+          target: !input 'light_secondary'
+      default:
+      - service: light.turn_on
+        target: !input 'light_secondary'
+
   - conditions:
     - "{{ event == 1001 }}"
     sequence:
@@ -75,6 +103,7 @@ action:
             brightness_step_pct: 10
         - delay:
             milliseconds: 500
+
   - conditions:
     - "{{ event == 2001 }}"
     sequence:
