@@ -1,5 +1,5 @@
 blueprint:
-  name: deCONZ - IKEA Tradfri on/off switch - 2 zones
+  name: deCONZ - IKEA Tradfri on/off switch - 2 zones test
   description: |
     "Control your deCONZ light(s) with IKEA Tradfri on/off switch
     
