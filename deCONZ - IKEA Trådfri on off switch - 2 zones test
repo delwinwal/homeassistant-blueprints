@@ -56,7 +56,7 @@ action:
     - choose:
       - conditions:
         - condition: state
-          target: !input 'light_primary'
+          entity_id: !input 'light_primary'
           state: 'on'
         sequence:
         - service: light.turn_off
@@ -76,10 +76,10 @@ action:
       - condition: or
         conditions:
         - condition: state
-          target: !input 'light_primary'
+          entity_id: !input 'light_primary'
           state: 'on'
         - condition: state
-          target: !input 'light_secondary'
+          entity_id: !input 'light_secondary'
           state: 'on'
         sequence:
         - service: light.turn_off
