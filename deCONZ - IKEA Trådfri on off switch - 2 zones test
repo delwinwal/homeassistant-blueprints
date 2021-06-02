@@ -19,23 +19,20 @@ blueprint:
       name: Primary Light
       description: The lights that will be controlled by the on button
       selector:
-        target:
-          entity:
-            domain: light
+        entity:
+          domain: light
     light_secondary:
       name: Secondary Light
       description: The lights that will be controlled by the off button
       selector:
-        target:
-          entity:
-            domain: light
+        entity:
+          domain: light
     light_dimmable:
       name: Dimmable Light
       description: The lights which brightness will be controllable by long press
       selector:
-        target:
-          entity:
-            domain: light
+        entity:
+          domain: light
 
 mode: restart
 
