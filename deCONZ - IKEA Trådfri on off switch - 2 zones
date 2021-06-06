@@ -5,6 +5,7 @@ blueprint:
     
     Select the Tradfri remote and your lights.
     You can turn the lights On / Off, or hold the buttons to dim the lights"
+    
   domain: automation
   input:
     remote:
@@ -13,29 +14,26 @@ blueprint:
       selector:
         device:
           integration: deconz
-          manufacturer: 'IKEA of Sweden'
-          model: 'TRADFRI on/off switch'
+          manufacturer: IKEA of Sweden
+          model: TRADFRI on/off switch
     light_primary:
       name: Primary Light
       description: The lights that will be controlled by the on button
       selector:
-        target:
-          entity:
-            domain: light
+        entity:
+          domain: light
     light_secondary:
       name: Secondary Light
       description: The lights that will be controlled by the off button
       selector:
-        target:
-          entity:
-            domain: light
+        entity:
+          domain: light
     light_dimmable:
       name: Dimmable Light
       description: The lights which brightness will be controllable by long press
       selector:
-        target:
-          entity:
-            domain: light
+        entity:
+          domain: light
 
 mode: restart
 
@@ -47,44 +45,72 @@ trigger:
 
 action:
 - variables:
-    event: "{{ trigger.event.data.event }}"
+    event: '{{ trigger.event.data.event }}'
+    light_primary: !input 'light_primary'
+    light_secondary: !input 'light_secondary'
 
 - choose:
-  - conditions:
-    - "{{ event == 1002 }}"
-    sequence:
-    - service: light.toggle
-      target: !input 'light_primary'
-      data:
-        transition: 0.25
-  - conditions:
-    - "{{ event == 2002 }}"
-    sequence:
-    - service: light.toggle
-      target: !input 'light_secondary'
-  - conditions:
-    - "{{ event == 1001 }}"
-    sequence:
-      repeat:
-        count: 10
-        sequence:
-        - service: light.turn_on
-          target: !input 'light_dimmable'
-          data:
-            transition: 0.25
-            brightness_step_pct: 10
-        - delay:
-            milliseconds: 500
-  - conditions:
-    - "{{ event == 2001 }}"
-    sequence:
-      repeat:
-        count: 10
-        sequence:
-        - service: light.turn_on
-          target: !input 'light_dimmable'
-          data:
-            transition: 0.25
-            brightness_step_pct: -10
-        - delay:
-            milliseconds: 500
+    - conditions:
+        - '{{ event == 1002 }}'
+      sequence:
+        - choose:
+            - conditions:
+                - "{{ states(light_primary) == 'on' }}"
+              sequence:
+                - service: light.turn_on
+                  entity_id: !input 'light_secondary'
+                - delay:
+                    milliseconds: 200
+                - service: light.turn_off
+                  entity_id: !input 'light_primary'
+          default:
+            - service: light.turn_on
+              entity_id: !input 'light_primary'
+            - delay:
+                milliseconds: 200
+            - service: light.turn_off
+              entity_id: !input 'light_secondary'
+
+    - conditions:
+        - '{{ event == 2002 }}'
+      sequence:
+        - choose:
+            - conditions:
+                - "{{ states(light_primary) == 'off' }}"
+                - "{{ states(light_secondary) == 'off' }}"
+              sequence:
+                - service: light.turn_on
+                  entity_id: !input 'light_secondary'
+          default:
+            - service: light.turn_off
+              entity_id: !input 'light_primary'
+            - service: light.turn_off
+              entity_id: !input 'light_secondary'
+
+    - conditions:
+        - '{{ event == 1001 }}'
+      sequence:
+        repeat:
+          count: 10
+          sequence:
+          - service: light.turn_on
+            target: !input 'light_dimmable'
+            data:
+              transition: 0.25
+              brightness_step_pct: 10
+          - delay:
+              milliseconds: 500
+
+    - conditions:
+        - '{{ event == 2001 }}'
+      sequence:
+        repeat:
+          count: 10
+          sequence:
+          - service: light.turn_on
+            target: !input 'light_dimmable'
+            data:
+              transition: 0.25
+              brightness_step_pct: -10
+          - delay:
+              milliseconds: 500
