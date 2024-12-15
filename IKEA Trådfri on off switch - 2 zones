@@ -37,79 +37,82 @@ blueprint:
 mode: restart
 
 trigger:
-- platform: event
-  event_type: deconz_event
-  event_data:
-    device_id: !input 'remote'
+  - platform: event
+    event_type:
+      - deconz_event
+      - zha_event
+    event_data:
+      device_id: !input 'remote'
 
 action:
-- variables:
-    event: '{{ trigger.event.data.event }}'
-    light_primary: !input 'light_primary'
-    light_secondary: !input 'light_secondary'
+  - variables:
+      event: '{{ trigger.event.data.event }}'
+      command: '{{ trigger.event.data.command }}'
+      light_primary: !input 'light_primary'
+      light_secondary: !input 'light_secondary'
 
-- choose:
-    - conditions:
-        - '{{ event == 1002 }}'
-      sequence:
-        - choose:
-            - conditions:
-                - "{{ states(light_primary) == 'on' }}"
-              sequence:
-                - service: light.turn_on
-                  entity_id: !input 'light_secondary'
-                - delay:
-                    milliseconds: 200
-                - service: light.turn_off
-                  entity_id: !input 'light_primary'
-          default:
+  - choose:
+      - conditions:
+          - '{{ event == 1002 or command == "on" }}'
+        sequence:
+          - choose:
+              - conditions:
+                  - "{{ states(light_primary) == 'on' }}"
+                sequence:
+                  - service: light.turn_on
+                    entity_id: !input 'light_secondary'
+                  - delay:
+                      milliseconds: 200
+                  - service: light.turn_off
+                    entity_id: !input 'light_primary'
+            default:
+              - service: light.turn_on
+                entity_id: !input 'light_primary'
+              - delay:
+                  milliseconds: 200
+              - service: light.turn_off
+                entity_id: !input 'light_secondary'
+  
+      - conditions:
+          - '{{ event == 2002 or command == "off" }}'
+        sequence:
+          - choose:
+              - conditions:
+                  - "{{ states(light_primary) == 'off' }}"
+                  - "{{ states(light_secondary) == 'off' }}"
+                sequence:
+                  - service: light.turn_on
+                    entity_id: !input 'light_secondary'
+            default:
+              - service: light.turn_off
+                entity_id: !input 'light_primary'
+              - service: light.turn_off
+                entity_id: !input 'light_secondary'
+  
+      - conditions:
+          - '{{ event == 1001 or command == "move_with_on_off" }}'
+        sequence:
+          repeat:
+            count: 10
+            sequence:
             - service: light.turn_on
-              entity_id: !input 'light_primary'
+              entity_id: !input 'light_dimmable'
+              data:
+                transition: 0.25
+                brightness_step_pct: 10
             - delay:
-                milliseconds: 200
-            - service: light.turn_off
-              entity_id: !input 'light_secondary'
-
-    - conditions:
-        - '{{ event == 2002 }}'
-      sequence:
-        - choose:
-            - conditions:
-                - "{{ states(light_primary) == 'off' }}"
-                - "{{ states(light_secondary) == 'off' }}"
-              sequence:
-                - service: light.turn_on
-                  entity_id: !input 'light_secondary'
-          default:
-            - service: light.turn_off
-              entity_id: !input 'light_primary'
-            - service: light.turn_off
-              entity_id: !input 'light_secondary'
-
-    - conditions:
-        - '{{ event == 1001 }}'
-      sequence:
-        repeat:
-          count: 10
-          sequence:
-          - service: light.turn_on
-            entity_id: !input 'light_dimmable'
-            data:
-              transition: 0.25
-              brightness_step_pct: 10
-          - delay:
-              milliseconds: 500
-
-    - conditions:
-        - '{{ event == 2001 }}'
-      sequence:
-        repeat:
-          count: 10
-          sequence:
-          - service: light.turn_on
-            entity_id: !input 'light_dimmable'
-            data:
-              transition: 0.25
-              brightness_step_pct: -10
-          - delay:
-              milliseconds: 500
+                milliseconds: 500
+  
+      - conditions:
+          - '{{ event == 2001 or command == "move" }}'
+        sequence:
+          repeat:
+            count: 10
+            sequence:
+            - service: light.turn_on
+              entity_id: !input 'light_dimmable'
+              data:
+                transition: 0.25
+                brightness_step_pct: -10
+            - delay:
+                milliseconds: 500
