@@ -1,11 +1,9 @@
 blueprint:
-  name: deCONZ - IKEA Tradfri on/off switch - 2 zones
+  name: IKEA Tradfri on/off switch - 2 zones
   description: |
-    "Control your deCONZ light(s) with IKEA Tradfri on/off switch
-    
+    "Control your light(s) with IKEA Tradfri on/off switch
     Select the Tradfri remote and your lights.
     You can turn the lights On / Off, or hold the buttons to dim the lights"
-    
   domain: automation
   input:
     remote:
@@ -26,13 +24,15 @@ blueprint:
       description: The lights that will be controlled by the off button
       selector:
         entity:
-          domain: light
+          filter:
+            domain: light
     light_dimmable:
       name: Dimmable Light
       description: The lights which brightness will be controllable by long press
       selector:
         entity:
-          domain: light
+          filter:
+            domain: light
 
 mode: restart
 
