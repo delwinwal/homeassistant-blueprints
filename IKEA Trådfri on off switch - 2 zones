@@ -93,7 +93,7 @@ action:
           count: 10
           sequence:
           - service: light.turn_on
-            target: !input 'light_dimmable'
+            entity_id: !input 'light_dimmable'
             data:
               transition: 0.25
               brightness_step_pct: 10
@@ -107,7 +107,7 @@ action:
           count: 10
           sequence:
           - service: light.turn_on
-            target: !input 'light_dimmable'
+            entity_id: !input 'light_dimmable'
             data:
               transition: 0.25
               brightness_step_pct: -10
